@@ -4,7 +4,7 @@
 
 This repo implements a system to make algorithms compete in any text-input/text-output game, independent of implementation language. The competing algorithms need to be docker images that take some text as input and produce some text as output, the concrete form of which depends on the game being played.
 
-Along a runner script, the repo also provides templates to create compatible docker images from Javascript, Python, and Java code. 
+Along a runner script, the repo also provides templates to create compatible docker images from Javascript, Python, and Java code. The `src` directory contains sample code that should be edited to match the game specifications. To build the docker image from a template, simply run the `build.sh` script from the corresponding directory.
 
 ## Game 1: Cooperation game (iterated prisoner's dilemma)
 
