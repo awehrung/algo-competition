@@ -75,7 +75,7 @@ def _compete_standoff(competitors):
         max_ammo_capacity = 2
         ammo_loss_on_shoot = 1
         ammo_gain_on_reload = 1
-        protect_damage_reduction = 0.5
+        protect_damage_multiplier = 0.6
         hp_lost_per_hit = 10
 
     class Action(StrEnum):
@@ -104,7 +104,9 @@ def _compete_standoff(competitors):
         neighbor_right: Optional[str] = None
 
     def encode_input(my_state, neighbor_left_state, neighbor_right_state):
-        my_infos = "/".join([str(my_state.hp), str(my_state.ammo), str(my_state.last_action)[0]])
+        my_infos = "/".join(
+            [str(my_state.hp), str(my_state.ammo), str(my_state.last_action)[0]]
+        )
         neighbor_left_infos = (
             " "
             if neighbor_left_state is None
@@ -188,7 +190,7 @@ def _compete_standoff(competitors):
                     _game_state[neighbor_left].hp -= int(
                         Config.hp_lost_per_hit
                         * (
-                            1 - Config.protect_damage_reduction
+                            Config.protect_damage_multiplier
                             if _decisions[neighbor_left] == Action.PROTECT
                             else 1
                         )
@@ -197,7 +199,7 @@ def _compete_standoff(competitors):
                     _game_state[neighbor_right].hp -= int(
                         Config.hp_lost_per_hit
                         * (
-                            1 - Config.protect_damage_reduction
+                            Config.protect_damage_multiplier
                             if _decisions[neighbor_right] == Action.PROTECT
                             else 1
                         )
