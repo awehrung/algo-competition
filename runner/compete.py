@@ -1,3 +1,4 @@
+import random as rd
 from collections import defaultdict
 from dataclasses import dataclass
 from enum import StrEnum
@@ -33,6 +34,7 @@ def main(game_name):
     elif game_name == "random":
         _compete_1v1_round_robin(competitors_random, _play_random_game)
     elif game_name == "standoff":
+        rd.shuffle(competitors_standoff)
         _compete_standoff(competitors_standoff)
     else:
         print("Unknown game, exiting")
@@ -66,6 +68,16 @@ def _compete_1v1_round_robin(competitors, run_game):
 
 
 def _compete_standoff(competitors):
+    @dataclass(frozen=True)
+    class Config:
+        starting_hp = 30
+        starting_ammo = 2
+        max_ammo_capacity = 2
+        ammo_loss_on_shoot = 1
+        ammo_gain_on_reload = 1
+        protect_damage_reduction = 0.5
+        hp_lost_per_hit = 10
+
     class Action(StrEnum):
         SHOOT = "Shoot"
         PROTECT = "Protect"
@@ -85,14 +97,14 @@ def _compete_standoff(competitors):
 
     @dataclass
     class PlayerState:
-        hp: int = 30
-        ammo: int = 2
+        hp: int = Config.starting_hp
+        ammo: int = Config.starting_ammo
         last_action: Action = Action.NOTHING
         neighbor_left: Optional[str] = None
         neighbor_right: Optional[str] = None
 
     def encode_input(my_state, neighbor_left_state, neighbor_right_state):
-        my_infos = "/".join([str(my_state.hp), str(my_state.ammo)])
+        my_infos = "/".join([str(my_state.hp), str(my_state.ammo), str(my_state.last_action)[0]])
         neighbor_left_infos = (
             " "
             if neighbor_left_state is None
@@ -115,7 +127,7 @@ def _compete_standoff(competitors):
                 ]
             )
         )
-        return f"{my_infos} {neighbor_left_infos} {neighbor_right_infos}"
+        return f"{my_infos} {neighbor_left_infos} {neighbor_right_infos}".strip()
 
     def decode_output(raw_output):
         return raw_output.decode("utf-8").strip()
@@ -127,9 +139,90 @@ def _compete_standoff(competitors):
             return "Cannot act, player is dead"
         if move == "S" and ammo <= 0:
             return "Cannot shoot, no ammo"
-        if move == "R" and ammo >= 2:
+        if move == "R" and ammo >= Config.max_ammo_capacity:
             return "Cannot reload, ammo full"
         return None
+
+    def compute_decisions(_game_state):
+        client = docker.from_env()
+        _decisions = {}
+        for c in _game_state.keys():
+            container_input = encode_input(
+                _game_state[c],
+                (
+                    None
+                    if _game_state[c].neighbor_left is None
+                    else _game_state[_game_state[c].neighbor_left]
+                ),
+                (
+                    None
+                    if _game_state[c].neighbor_right is None
+                    else _game_state[_game_state[c].neighbor_right]
+                ),
+            )
+            # print(container_input)
+            decision = decode_output(
+                client.containers.run(
+                    c,
+                    container_input,
+                )
+            )
+            error_message = check_move_validity(
+                decision, _game_state[c].hp, _game_state[c].ammo
+            )
+            if error_message is None:
+                _decisions[c] = Action.from_str(decision)
+            else:
+                print(f"Invalid move {decision} for player {c}: {error_message}")
+                _decisions[c] = Action.NOTHING
+        return _decisions
+
+    def update_state(_game_state, _decisions):
+        for c in _game_state.keys():
+            _game_state[c].last_action = _decisions[c]
+            neighbor_left = _game_state[c].neighbor_left
+            neighbor_right = _game_state[c].neighbor_right
+            if _decisions[c] == Action.SHOOT:
+                _game_state[c].ammo -= Config.ammo_loss_on_shoot
+                if neighbor_left is not None:
+                    _game_state[neighbor_left].hp -= int(
+                        Config.hp_lost_per_hit
+                        * (
+                            1 - Config.protect_damage_reduction
+                            if _decisions[neighbor_left] == Action.PROTECT
+                            else 1
+                        )
+                    )
+                if neighbor_right is not None:
+                    _game_state[neighbor_right].hp -= int(
+                        Config.hp_lost_per_hit
+                        * (
+                            1 - Config.protect_damage_reduction
+                            if _decisions[neighbor_right] == Action.PROTECT
+                            else 1
+                        )
+                    )
+            elif _decisions[c] == Action.RELOAD:
+                _game_state[c].ammo += Config.ammo_gain_on_reload
+
+    def update_standoff_circle(_game_state, _dead_players, _round_nb):
+        game_state_keys = list(_game_state.keys())
+        for c in game_state_keys:
+            if _game_state[c].hp <= 0:
+                print(f"{c} is dead")
+                dead_player_state = _game_state.pop(c)
+                _dead_players[_round_nb].append(c)
+                if dead_player_state.neighbor_left in _game_state:
+                    _game_state[dead_player_state.neighbor_left].neighbor_right = (
+                        dead_player_state.neighbor_right
+                    )
+                if dead_player_state.neighbor_right in _game_state:
+                    _game_state[dead_player_state.neighbor_right].neighbor_left = (
+                        dead_player_state.neighbor_left
+                    )
+            else:
+                if _game_state[c].neighbor_left == _game_state[c].neighbor_right:
+                    _game_state[c].neighbor_right = None
 
     # init state
     game_state = {c: PlayerState() for c in competitors}
@@ -137,91 +230,42 @@ def _compete_standoff(competitors):
         game_state[competitors[i]].neighbor_left = competitors[i - 1]
         game_state[competitors[i - 1]].neighbor_right = competitors[i]
 
-    client = docker.from_env()
     dead_players = defaultdict(list)
     round_nb = 1
 
     while True:
-        # compute decisions
-        decisions = {}
-        for c in game_state.keys():
-            decision = decode_output(
-                client.containers.run(
-                    c,
-                    encode_input(
-                        game_state[c],
-                        (
-                            None
-                            if game_state[c].neighbor_left is None
-                            else game_state[game_state[c].neighbor_left]
-                        ),
-                        (
-                            None
-                            if game_state[c].neighbor_right is None
-                            else game_state[game_state[c].neighbor_right]
-                        ),
-                    ),
-                )
-            )
-            error_message = check_move_validity(
-                decision, game_state[c].hp, game_state[c].ammo
-            )
-            if error_message is None:
-                decisions[c] = Action.from_str(decision)
-            else:
-                print(f"Invalid move {decision} for player {c}: {error_message}")
-                decisions[c] = Action.NOTHING
+        decisions = compute_decisions(game_state)
         print(f"Round {round_nb} decisions:")
-        print("\n".join([f"- {c} uses {str(d)}" for c, d in decisions.items()]))
+        print(
+            "\n".join(
+                [
+                    f"- {c} ({game_state[c].hp} HP, {game_state[c].ammo} ammo) uses {str(d)}"
+                    for c, d in decisions.items()
+                ]
+            )
+        )
 
-        # update state
-        for c in game_state.keys():
-            game_state[c].last_action = decisions[c]
-            neighbor_left = game_state[c].neighbor_left
-            neighbor_right = game_state[c].neighbor_right
-            if decisions[c] == Action.SHOOT:
-                game_state[c].ammo -= 1
-                if neighbor_left is not None:
-                    game_state[neighbor_left].hp -= int(
-                        10 * (0.5 if decisions[neighbor_left] == Action.PROTECT else 1)
-                    )
-                if neighbor_right is not None:
-                    game_state[neighbor_right].hp -= int(
-                        10 * (0.5 if decisions[neighbor_right] == Action.PROTECT else 1)
-                    )
-            elif decisions[c] == Action.RELOAD:
-                game_state[c].ammo += 1
+        update_state(game_state, decisions)
+        update_standoff_circle(game_state, dead_players, round_nb)
 
-        # update standoff circle
-        game_state_keys = list(game_state.keys())
-        for c in game_state_keys:
-            if game_state[c].hp <= 0:
-                print(f"{c} is dead")
-                dead_player_state = game_state.pop(c)
-                dead_players[round_nb].append(c)
-                if dead_player_state.neighbor_left is not None:
-                    game_state[dead_player_state.neighbor_left].neighbor_right = (
-                        dead_player_state.neighbor_right
-                    )
-                if dead_player_state.neighbor_right is not None:
-                    game_state[dead_player_state.neighbor_right].neighbor_left = (
-                        dead_player_state.neighbor_left
-                    )
-            else:
-                if game_state[c].neighbor_left == game_state[c].neighbor_right:
-                    game_state[c].neighbor_left = None
-
-        print(game_state)
+        # print(game_state)
         if len(game_state.keys()) <= 1:
             print(
-                f"Game over! Still alive: {'no one' if len(game_state) == 0 else f'{list(game_state.keys())[0]} with {list(game_state.values())[0].hp} HP and  {list(game_state.values())[0].ammo} ammo'}"
+                f"\nGame over! Still alive: {'no one' if len(game_state) == 0 else f'{list(game_state.keys())[0]} with {list(game_state.values())[0].hp} HP and  {list(game_state.values())[0].ammo} ammo'}"
             )
             break
 
         round_nb += 1
+
     print("Death order:")
-    for k, v in sorted(dead_players.items(), key=lambda item: item[0]):
-        print(f"- Round {k}: {', '.join(v)}")
+    print(
+        "\n".join(
+            [
+                f"- Round {k}: {', '.join(v)}"
+                for k, v in sorted(dead_players.items(), key=lambda item: item[0])
+            ]
+        )
+    )
 
 
 def _play_random_game(c1, c2):
