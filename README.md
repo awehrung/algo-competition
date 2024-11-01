@@ -6,6 +6,12 @@ This repo implements a system to make algorithms compete in any text-input/text-
 
 Along a runner script, the repo also provides templates to create compatible docker images from Javascript, Python, and Java code. The `src` directory contains sample code that should be edited to match the game specifications. To build the docker image from a template, simply run the `build.sh` script from the corresponding directory.
 
+## How to compete
+
+As the competition runner, gather docker images from the competitors and adapt the `runner/compete.py` script to run the correct game with the list of competitors.
+
+As a competitor, build a docker image that matches the game specifications using the templates as starting points and publish it to a registry the competition runner has access to. Notify them about your entry, so that it can be added to the competition.
+
 ## Game 1: Cooperation game (iterated prisoner's dilemma)
 
 Imagine two opposing mafia criminals facing a high-stakes deal. They can cooperate to make lots of money... but this is not the only option. If one of them betrays the other during the operation, the payoff is even bigger for the betrayer, while the betrayed gets nothing. If they both decide to betray each other at the same time though, the deal fails, and they only get very little. In addition, this is not a one-time deal: this situation will arise many times during their mafia life, and both criminals will remember their previous decisions, as well as their counterpart's. What is the optimal strategy to make the most out of all deals?
