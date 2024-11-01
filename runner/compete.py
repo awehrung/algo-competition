@@ -14,7 +14,8 @@ def main():
     competitors = [
         "js-test-competitor:cooperator",
         "js-test-competitor:betrayer",
-        "js-test-competitor:random"
+        "js-test-competitor:random",
+        "js-test-competitor:randomprinter",
     ]
 
     scores = {c: 0 for c in competitors}
@@ -102,17 +103,19 @@ def _play_cooperation_game(c1, c2):
             print("Both competitors chose invalid moves, disqualifying both")
             return 0, 0
         elif not is_valid_move(decision_1):
-            print(f"{c1} chose invalid move, forfeiting the game")
+            print(f"{c1} chose invalid move {decision_1}, forfeiting the game")
             return 0, score_on_opponent_forfeit
         elif not is_valid_move(decision_2):
-            print(f"{c2} chose invalid move, forfeiting the game")
+            print(f"{c2} chose invalid move {decision_2}, forfeiting the game")
             return score_on_opponent_forfeit, 0
 
         moves_1.append(decision_1)
         moves_2.append(decision_2)
 
         if [decision_1, decision_2] == ["B", "B"]:
-            print("Both betray, no points")
+            print("Both betray, 1 point each")
+            score_1 += 1
+            score_2 += 1
         elif [decision_1, decision_2] == ["B", "C"]:
             print(f"{c1} betrays {c2} and wins 3 points")
             score_1 += 3
@@ -120,8 +123,8 @@ def _play_cooperation_game(c1, c2):
             print(f"{c2} betrays {c1} and wins 3 points")
             score_2 += 3
         else:
-            print("Both cooperate, 1 point each")
-            score_1 += 1
+            print("Both cooperate, 2 point each")
+            score_1 += 2
             score_2 += 2
     print(f"Final score: {c1}: {score_1}, {c2}: {score_2}")
     return score_1, score_2
