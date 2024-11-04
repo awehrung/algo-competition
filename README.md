@@ -22,8 +22,8 @@ This game is played between two players over 10 rounds. Each round, given the hi
 * if both players cooperate: each get 2 points
 
 Specification for competitors:
-* Input: 2 lists of the previous decisions in the following format: `[C,B,C,C]`, the first representing your previous moves, the second representing your opponent's previous moves
-* The input will be transmitted through `docker run` arguments, e.g. `docker run my-competitor:v1 "[B,C,C]" "[C,B,C]"`
+* Input: 2 lists of the previous decisions in the following format: `C/B/C/C`, the first representing your previous moves, the second representing your opponent's previous moves
+* The input will be transmitted through `docker run` arguments, e.g. `docker run my-competitor:v1 B/C/C C/B/C`
 * Output: 1 character representing the decision, either `C` for cooperation or `B` for betrayal
 * The output will be read from the console, the container should not print anything else
 * Any invalid output will result in forfeiting the game
@@ -38,8 +38,9 @@ Specification for competitors:
 * Input: 3 triplets of HP, ammo and last action in the following format: `30/2/P`, the first being yourself and the others representing your neighbors
 * If only two people are left alive, then the third triplet is omitted
 * The "last action" are encoded as letters: `S` for Shooting, `P` for Protecting, `R` for Reloading and `N` for Nothing.
-* The input will be transmitted through `docker run` arguments, e.g. `docker run my-competitor:v1 "20/1/P 20/0/N 16/2/R"`
+* The input will be transmitted through `docker run` arguments, e.g. `docker run my-competitor:v1 20/1/P 20/0/N 16/2/R`
 * Output: 1 character representing the decision, using the same encoding as "last action"
 * The output will be read from the console, the container should not print anything else
+* Any invalid output will result in the action "Nothing" being chosen
 
 The competition will shuffle the competitors to build a starting circle and runs until at most 1 player is left alive.

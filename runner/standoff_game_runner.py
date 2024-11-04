@@ -4,6 +4,8 @@ from enum import StrEnum
 from typing import Optional, List
 
 import docker
+from docker import DockerClient
+from docker.errors import ContainerError
 
 
 def play_standoff(competitors: List[str]) -> None:
@@ -136,7 +138,7 @@ def _decode_output(raw_output: bytes) -> str:
 
 
 def _check_move_validity(move: str, hp: int, ammo: int) -> Optional[str]:
-    if not move in ("S", "P", "R"):
+    if not move in ("S", "P", "R", "N"):
         return "Unknown move"
     if hp <= 0:
         return "Cannot act, player is dead"
@@ -165,12 +167,7 @@ def _compute_decisions(game_state: dict[str, _PlayerState]) -> dict[str, _Action
             ),
         )
         # print(container_input)
-        decision = _decode_output(
-            client.containers.run(
-                c,
-                container_input,
-            )
-        )
+        decision = _run_turn(client, c, container_input)
         error_message = _check_move_validity(
             decision, game_state[c].hp, game_state[c].ammo
         )
@@ -180,6 +177,19 @@ def _compute_decisions(game_state: dict[str, _PlayerState]) -> dict[str, _Action
             print(f"Invalid move {decision} for player {c}: {error_message}")
             decisions[c] = _Action.NOTHING
     return decisions
+
+
+def _run_turn(client: DockerClient, image_name: str, container_input: str) -> str:
+    try:
+        return _decode_output(
+            client.containers.run(
+                image_name,
+                container_input,
+            )
+        )
+    except ContainerError:
+        print(f"{image_name} threw error")
+        return "N"
 
 
 def _update_state(

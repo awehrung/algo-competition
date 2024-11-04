@@ -82,7 +82,7 @@ class _Config:
 
 
 def _encode_input(my_moves: List[str], opponent_moves: List[str]) -> str:
-    return f"[{','.join(my_moves)}] [{','.join(opponent_moves)}]"
+    return f"{'/'.join(my_moves)} {'/'.join(opponent_moves)}"
 
 
 def _decode_output(raw_output: bytes) -> str:
