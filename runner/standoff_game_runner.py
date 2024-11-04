@@ -7,25 +7,44 @@ import docker
 from docker import DockerClient
 from docker.errors import ContainerError
 
+from competitor import Competitor
 
-def play_standoff(competitors: List[str]) -> None:
+
+def play_standoff(competitors: List[str | Competitor]) -> None:
     """
     Play the mega mexican standoff game as defined in the README, and print the
     results at the end
 
-    :param competitors: docker image names of all players
+    :param competitors: Full list of competitors, each entry should be an instance of the Competitor
+        dataclass, with friendly name and image path, e.g. Competitor("John", "registry.gitlab.com/my-competitor:v1").
+        Optionally use simple strings instead, e.g. "my-competitor:v1".
     """
+    for i in range(len(competitors)):
+        c = competitors[i]
+        if isinstance(c, str):
+            competitors[i] = Competitor(c.split("/")[-1], c)
+    competitors: List[Competitor]
+
     game_state = _init_state(competitors)
     dead_players = defaultdict(list)
     round_nb = 1
 
     while True:
+        print("Still alive:")
+        print(
+            "\n".join(
+                [
+                    f"- {c.name} ({game_state[c].hp} HP, {game_state[c].ammo} ammo)"
+                    for c in game_state.keys()
+                ]
+            )
+        )
         decisions = _compute_decisions(game_state)
         print(f"Round {round_nb} decisions:")
         print(
             "\n".join(
                 [
-                    f"- {c} ({game_state[c].hp} HP, {game_state[c].ammo} ammo) uses {str(d)}"
+                    f"- {c.name} ({game_state[c].hp} HP, {game_state[c].ammo} ammo) uses {str(d)}"
                     for c, d in decisions.items()
                 ]
             )
@@ -88,11 +107,11 @@ class _PlayerState:
     hp: int = _Config.starting_hp
     ammo: int = _Config.starting_ammo
     last_action: _Action = _Action.NOTHING
-    neighbor_left: Optional[str] = None
-    neighbor_right: Optional[str] = None
+    neighbor_left: Optional[Competitor] = None
+    neighbor_right: Optional[Competitor] = None
 
 
-def _init_state(competitors: List[str]) -> dict[str, _PlayerState]:
+def _init_state(competitors: List[Competitor]) -> dict[Competitor, _PlayerState]:
     game_state = {c: _PlayerState() for c in competitors}
     for i in range(len(competitors)):
         game_state[competitors[i]].neighbor_left = competitors[i - 1]
@@ -149,7 +168,9 @@ def _check_move_validity(move: str, hp: int, ammo: int) -> Optional[str]:
     return None
 
 
-def _compute_decisions(game_state: dict[str, _PlayerState]) -> dict[str, _Action]:
+def _compute_decisions(
+    game_state: dict[Competitor, _PlayerState]
+) -> dict[Competitor, _Action]:
     client = docker.from_env()
     decisions = {}
     for c in game_state.keys():
@@ -167,14 +188,14 @@ def _compute_decisions(game_state: dict[str, _PlayerState]) -> dict[str, _Action
             ),
         )
         # print(container_input)
-        decision = _run_turn(client, c, container_input)
+        decision = _run_turn(client, c.container_image, container_input)
         error_message = _check_move_validity(
             decision, game_state[c].hp, game_state[c].ammo
         )
         if error_message is None:
             decisions[c] = _Action.from_str(decision)
         else:
-            print(f"Invalid move {decision} for player {c}: {error_message}")
+            print(f"Invalid move {decision} for player {c.name}: {error_message}")
             decisions[c] = _Action.NOTHING
     return decisions
 
@@ -193,7 +214,7 @@ def _run_turn(client: DockerClient, image_name: str, container_input: str) -> st
 
 
 def _update_state(
-    game_state: dict[str, _PlayerState], decisions: dict[str, _Action]
+    game_state: dict[Competitor, _PlayerState], decisions: dict[Competitor, _Action]
 ) -> None:
     for c in game_state.keys():
         game_state[c].last_action = decisions[c]
@@ -202,7 +223,7 @@ def _update_state(
         if decisions[c] == _Action.SHOOT:
             game_state[c].ammo -= _Config.ammo_loss_on_shoot
             if neighbor_left is not None:
-                game_state[neighbor_left].hp -= int(
+                damage_done_left = int(
                     _Config.hp_lost_per_hit
                     * (
                         _Config.protect_damage_multiplier
@@ -210,8 +231,12 @@ def _update_state(
                         else 1
                     )
                 )
+                print(
+                    f"{neighbor_left.name} takes {damage_done_left} damage from {c.name}"
+                )
+                game_state[neighbor_left].hp -= damage_done_left
             if neighbor_right is not None:
-                game_state[neighbor_right].hp -= int(
+                damage_done_right = int(
                     _Config.hp_lost_per_hit
                     * (
                         _Config.protect_damage_multiplier
@@ -219,21 +244,25 @@ def _update_state(
                         else 1
                     )
                 )
+                print(
+                    f"{neighbor_right.name} takes {damage_done_right} damage from {c.name}"
+                )
+                game_state[neighbor_right].hp -= damage_done_right
         elif decisions[c] == _Action.RELOAD:
             game_state[c].ammo += _Config.ammo_gain_on_reload
 
 
 def _update_standoff_circle(
-    game_state: dict[str, _PlayerState],
+    game_state: dict[Competitor, _PlayerState],
     dead_players: dict[int, List[str]],
     round_nb: int,
 ) -> None:
     game_state_keys = list(game_state.keys())
     for c in game_state_keys:
         if game_state[c].hp <= 0:
-            print(f"{c} is dead")
+            print(f"{c.name} is dead")
             dead_player_state = game_state.pop(c)
-            dead_players[round_nb].append(c)
+            dead_players[round_nb].append(c.name)
             if dead_player_state.neighbor_left in game_state:
                 game_state[dead_player_state.neighbor_left].neighbor_right = (
                     dead_player_state.neighbor_right
@@ -247,6 +276,6 @@ def _update_standoff_circle(
                 game_state[c].neighbor_right = None
 
 
-def _get_last_player_infos(game_state: dict[str, _PlayerState]) -> str:
-    player_name, player_state = list(game_state.items())[0]
-    return f"{player_name} with {player_state.hp} HP and {player_state.ammo} ammo"
+def _get_last_player_infos(game_state: dict[Competitor, _PlayerState]) -> str:
+    player, player_state = list(game_state.items())[0]
+    return f"{player.name} with {player_state.hp} HP and {player_state.ammo} ammo"
