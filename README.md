@@ -50,3 +50,5 @@ The competition will shuffle the competitors to build a starting circle and runs
 The inspiration for this repo comes from [Robert Axelrod's tournaments](https://www.wikiwand.com/en/articles/The_Evolution_of_Cooperation#Background:_Axelrod's_tournaments) (warning: big spoilers for game 1) from the 80s.
 
 Game 2 is based on the author's memory of a childhood game.
+
+Some lines of code are commented with a suggestion to "add breakpoint" → Setting a breakpoint at these locations will pause between rounds to allow for analysis, tension build-up and dramatic reveals.

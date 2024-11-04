@@ -6,8 +6,8 @@ from competitor import Competitor
 
 
 def run_1v1_round_robin(
-        competitors: List[str | Competitor],
-        game_func: Callable[[Competitor, Competitor], Tuple[int, int]],
+    competitors: List[str | Competitor],
+    game_func: Callable[[Competitor, Competitor], Tuple[int, int]],
 ) -> None:
     """
     Run the input 1v1 function in a round-robin mode, so that every competitor meets every other
@@ -38,7 +38,8 @@ def run_1v1_round_robin(
         if i1 < i2
     ]
     for c1, c2 in pairings:
-        print(f"{c1.name} against {c2.name}")
+        print(f"\n{c1.name} against {c2.name}")
+        # add a breakpoint here for added suspense
         s1, s2 = game_func(c1, c2)
         scores[c1] += s1
         scores[c2] += s2

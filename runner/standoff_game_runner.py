@@ -30,7 +30,7 @@ def play_standoff(competitors: List[str | Competitor]) -> None:
     round_nb = 1
 
     while True:
-        print("Still alive:")
+        print(f"Still alive before round {round_nb}:")
         print(
             "\n".join(
                 [
@@ -39,6 +39,7 @@ def play_standoff(competitors: List[str | Competitor]) -> None:
                 ]
             )
         )
+        # add a breakpoint here for added suspense
         decisions = _compute_decisions(game_state)
         print(f"Round {round_nb} decisions:")
         print(
