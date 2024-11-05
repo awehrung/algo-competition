@@ -19,6 +19,8 @@ def play_standoff(competitors: List[str | Competitor]) -> None:
         dataclass, with friendly name and image path, e.g. Competitor("John", "registry.gitlab.com/my-competitor:v1").
         Optionally use simple strings instead, e.g. "my-competitor:v1".
     """
+    if len(competitors) < 3:
+        raise Exception("At least 3 competitors needed for standoff game")
     for i in range(len(competitors)):
         c = competitors[i]
         if isinstance(c, str):
