@@ -88,6 +88,8 @@ class _Config:
 
 
 def _encode_input(my_moves: List[str], opponent_moves: List[str]) -> str:
+    if len(my_moves) == 0 or len(opponent_moves) == 0:
+        return ""
     return f"{'/'.join(my_moves)} {'/'.join(opponent_moves)}"
 
 
