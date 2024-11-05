@@ -28,8 +28,8 @@ def play_cooperation_game(c1: Competitor, c2: Competitor) -> Tuple[int, int]:
                     c1.container_image, _encode_input(moves_1, moves_2)
                 )
             )
-        except ContainerError:
-            print(f"{c1.name} threw error, forfeiting the game")
+        except ContainerError as e:
+            print(f"{c1.name} threw error, forfeiting the game -- {e}")
             return 0, _Config.score_on_opponent_forfeit
 
         try:
@@ -38,8 +38,8 @@ def play_cooperation_game(c1: Competitor, c2: Competitor) -> Tuple[int, int]:
                     c2.container_image, _encode_input(moves_2, moves_1)
                 )
             )
-        except ContainerError:
-            print(f"{c2.name} threw error, forfeiting the game")
+        except ContainerError as e:
+            print(f"{c2.name} threw error, forfeiting the game -- {e}")
             return _Config.score_on_opponent_forfeit, 0
 
         if not _is_valid_move(decision_1) and not _is_valid_move(decision_2):

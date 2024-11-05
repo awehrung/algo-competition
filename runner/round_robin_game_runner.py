@@ -1,5 +1,6 @@
 from typing import List, Callable, Tuple
 
+import docker
 from prettytable import PrettyTable
 
 from competitor import Competitor
@@ -27,10 +28,12 @@ def run_1v1_round_robin(
     competitors: List[Competitor]
 
     scores = {c: 0 for c in competitors}
-    # client = docker.from_env()
-    # print(f"Pulling {len(COMPETITORS)} images")
-    # for c in COMPETITORS:
-    #     client.images.pull(c)
+    client = docker.from_env()
+    print(f"Pulling images")
+    for c in competitors:
+        if "/" in c.container_image:
+            print(f"Pulling {c.container_image}")
+            client.images.pull(c.container_image)
     pairings = [
         (c1, c2)
         for i1, c1 in enumerate(competitors)
