@@ -13,7 +13,7 @@ public record CooperationGameArgs(
 ) {
     @Override
     public String toString() {
-        return "%s %s".formatted(
+        return "Args: %s %s".formatted(
                 myMoves.stream().map(Move::getEncoded).collect(Collectors.joining("/")),
                 opponentMoves.stream().map(Move::getEncoded).collect(Collectors.joining("/"))
         );

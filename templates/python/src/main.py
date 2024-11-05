@@ -16,6 +16,8 @@ def main():
 
 
 def parse_cooperation_game_args() -> CooperationGameArgs:
+    if len(sys.argv) == 1:
+        return CooperationGameArgs([], [])
     if len(sys.argv) != 3:
         raise Exception(f"Expected 2 arguments, got {len(sys.argv) - 1}")
     return CooperationGameArgs(

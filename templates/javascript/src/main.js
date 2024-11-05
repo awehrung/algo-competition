@@ -16,6 +16,12 @@ console.log(Math.floor(Math.random() * (upperBound - lowerBound) + lowerBound));
 // const standoffGameArgs = parseStandoffGameArgs();
 
 function parseCooperationGameArgs() {
+    if (args.length == 0) {
+        return {
+            myMoves: [],
+            opponentMoves: []
+        }
+    }
     if (args.length != 2) {
         throw Error(`Expected 2 arguments, got ${args.length}`)
     }

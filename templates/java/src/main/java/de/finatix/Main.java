@@ -1,6 +1,7 @@
 package de.finatix;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.Random;
 
 /**
@@ -22,6 +23,9 @@ public class Main {
     }
 
     private static CooperationGameArgs parseCooperationGameArgs(String[] rawArgs) {
+        if (rawArgs.length == 0) {
+            return new CooperationGameArgs(List.of(), List.of());
+        }
         if (rawArgs.length != 2) {
             throw new IllegalArgumentException("Expected 2 arguments, got %d".formatted(rawArgs.length));
         }
