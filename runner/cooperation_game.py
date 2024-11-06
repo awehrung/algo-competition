@@ -7,12 +7,26 @@ from docker.errors import ContainerError
 from competitor import Competitor
 
 
-def play_cooperation_game(c1: Competitor, c2: Competitor) -> Tuple[int, int]:
+def play_cooperation_game_v1(c1: Competitor, c2: Competitor) -> Tuple[int, int]:
+    return _play_cooperation_game(c1, c2, 10, False)
+
+
+def play_cooperation_game_v2(
+    c1: Competitor, c2: Competitor, nb_rounds: int
+) -> Tuple[int, int]:
+    return _play_cooperation_game(c1, c2, nb_rounds, True)
+
+
+def _play_cooperation_game(
+    c1: Competitor, c2: Competitor, nb_rounds: int, syntax_v2: bool
+) -> Tuple[int, int]:
     """
     Play a 1v1 game of the cooperation game as defined in the README
 
     :param c1: first player
     :param c2: second player
+    :param nb_rounds: number of rounds to play per game
+    :param syntax_v2: if True, use v2 syntax for container inputs (see README)
     :return tuple of the scores: first player, second player
     """
     score_1 = 0
@@ -21,36 +35,36 @@ def play_cooperation_game(c1: Competitor, c2: Competitor) -> Tuple[int, int]:
     moves_2: List[str] = []
 
     client = docker.from_env()
-    for _ in range(_Config.nb_rounds):
+    for _ in range(nb_rounds):
         try:
             decision_1 = _decode_output(
                 client.containers.run(
-                    c1.container_image, _encode_input(moves_1, moves_2)
+                    c1.container_image, _encode_input(moves_1, moves_2, syntax_v2)
                 )
             )
         except ContainerError as e:
             print(f"{c1.name} threw error, forfeiting the game -- {e}")
-            return 0, _Config.score_on_opponent_forfeit
+            return 0, nb_rounds * _Config.score_multiplier_on_opponent_forfeit
 
         try:
             decision_2 = _decode_output(
                 client.containers.run(
-                    c2.container_image, _encode_input(moves_2, moves_1)
+                    c2.container_image, _encode_input(moves_2, moves_1, syntax_v2)
                 )
             )
         except ContainerError as e:
             print(f"{c2.name} threw error, forfeiting the game -- {e}")
-            return _Config.score_on_opponent_forfeit, 0
+            return nb_rounds * _Config.score_multiplier_on_opponent_forfeit, 0
 
         if not _is_valid_move(decision_1) and not _is_valid_move(decision_2):
             print("Both competitors chose invalid moves, disqualifying both")
             return 0, 0
         elif not _is_valid_move(decision_1):
             print(f"{c1.name} chose invalid move {decision_1}, forfeiting the game")
-            return 0, _Config.score_on_opponent_forfeit
+            return 0, nb_rounds * _Config.score_multiplier_on_opponent_forfeit
         elif not _is_valid_move(decision_2):
             print(f"{c2.name} chose invalid move {decision_2}, forfeiting the game")
-            return _Config.score_on_opponent_forfeit, 0
+            return nb_rounds * _Config.score_multiplier_on_opponent_forfeit, 0
 
         moves_1.append(decision_1)
         moves_2.append(decision_2)
@@ -80,14 +94,18 @@ def play_cooperation_game(c1: Competitor, c2: Competitor) -> Tuple[int, int]:
 
 @dataclass(frozen=True)
 class _Config:
-    nb_rounds = 10
-    score_on_opponent_forfeit = nb_rounds * 2
+    score_multiplier_on_opponent_forfeit = 2
     reward_on_both_betray = 1
     reward_on_both_cooperate = 2
     reward_on_sole_betrayer = 3
 
 
-def _encode_input(my_moves: List[str], opponent_moves: List[str]) -> str:
+def _encode_input(
+    my_moves: List[str], opponent_moves: List[str], syntax_v2: bool
+) -> str:
+    if syntax_v2:
+        return f"[{','.join(my_moves)}] [{','.join(opponent_moves)}]"
+
     if len(my_moves) == 0 or len(opponent_moves) == 0:
         return ""
     return f"{'/'.join(my_moves)} {'/'.join(opponent_moves)}"

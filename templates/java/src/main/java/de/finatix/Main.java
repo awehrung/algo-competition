@@ -1,6 +1,5 @@
 package de.finatix;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
@@ -19,6 +18,7 @@ public class Main {
         System.out.println(rd.nextInt(lowerBound, upperBound));
 
 //        CooperationGameArgs cooperationGameArgs = parseCooperationGameArgs(args);
+//        CooperationGameArgs cooperationGameArgs = parseCooperationGameArgsV2(args);
 //        StandoffGameArgs standoffGameArgs = parseStandoffGameArgs(args);
     }
 
@@ -30,8 +30,18 @@ public class Main {
             throw new IllegalArgumentException("Expected 2 arguments, got %d".formatted(rawArgs.length));
         }
         return new CooperationGameArgs(
-                Arrays.stream(rawArgs[0].split("/")).map(CooperationGameArgs.Move::fromString).toList(),
-                Arrays.stream(rawArgs[1].split("/")).map(CooperationGameArgs.Move::fromString).toList()
+                CooperationGameArgs.Move.listFromRaw(rawArgs[0], false),
+                CooperationGameArgs.Move.listFromRaw(rawArgs[1], false)
+        );
+    }
+
+    private static CooperationGameArgs parseCooperationGameArgsV2(String[] rawArgs) {
+        if (rawArgs.length != 2) {
+            throw new IllegalArgumentException("Expected 2 arguments, got %d".formatted(rawArgs.length));
+        }
+        return new CooperationGameArgs(
+                CooperationGameArgs.Move.listFromRaw(rawArgs[0], true),
+                CooperationGameArgs.Move.listFromRaw(rawArgs[1], true)
         );
     }
 

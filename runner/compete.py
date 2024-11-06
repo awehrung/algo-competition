@@ -1,7 +1,8 @@
 import random as rd
+from functools import partial
 
 from competitor import Competitor
-from cooperation_game import play_cooperation_game
+from cooperation_game import play_cooperation_game_v1, play_cooperation_game_v2
 from random_game import play_random_game
 from round_robin_game_runner import run_1v1_round_robin
 from standoff_game_runner import play_standoff
@@ -34,7 +35,14 @@ def main(game_name: str) -> None:
         Competitor("Jules", "js-brawl-test:random-5"),
     ]
     if game_name == "cooperation":
-        run_1v1_round_robin(competitors_cooperation, play_cooperation_game)
+        run_1v1_round_robin(competitors_cooperation, play_cooperation_game_v1)
+    elif game_name == "cooperation-v2":
+        nb_rounds = rd.randint(10, 15)
+        print(f"Playing {nb_rounds} rounds")
+        run_1v1_round_robin(
+            competitors_cooperation,
+            partial(play_cooperation_game_v2, nb_rounds=nb_rounds),
+        )
     elif game_name == "random":
         run_1v1_round_robin(competitors_random, play_random_game)
     elif game_name == "standoff":

@@ -34,5 +34,16 @@ public record CooperationGameArgs(
                     .findFirst()
                     .orElseThrow(() -> new IllegalArgumentException("Unknown move: %s".formatted(raw)));
         }
+
+        public static List<Move> listFromRaw(String raw, boolean v2) {
+            if (v2) {
+                return Arrays.stream(raw.substring(1, raw.length() - 1).split(","))
+                        .filter(m -> !m.isEmpty())
+                        .map(CooperationGameArgs.Move::fromString)
+                        .toList();
+            }
+
+            return Arrays.stream(raw.split("/")).map(CooperationGameArgs.Move::fromString).toList();
+        }
     }
 }

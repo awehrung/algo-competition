@@ -30,6 +30,12 @@ Specification for competitors:
 
 The competition will pair every competitor in a round-robin tournament, adding the scores obtained each game. Greatest cumulated score wins the tournament.
 
+## Game 1 v2: Updated cooperation game
+
+The rules are the same as in game 1, with the following exceptions:
+* It is not known to the competitors beforehand how many rounds will be played exactly, only the range: 10 to 15 rounds. The number of rounds is determined randomly at the beginning of the game and is the same for all matches.
+* The input format is slightly different: `[C,B,C,C]` for each player, complete command looks like following: `docker run my-competitor:v1 "[B,C,C]" "[C,B,C]"`.
+
 ## Game 2: Mega mexican standoff
 
 After months of betraying one another (see game 1), it finally happened: a gigantic mexican standoff involving all the players, standing in a circle. Each round, you have 3 options at your disposal: Shooting at your neighbors, protecting yourself, or reloading. If you shoot, pistols in both hands fire at the same time, hitting both people standing next to you in the circle (or the one person in front of you if only two people are left). This consumes 1 ammo and inflicts 10 damage, reduced to 4 damage if the target chose to protect themselves. If you reload, you gain 1 ammo back up to your starting maximum of 2. Invalid actions (e.g. shooting with no ammo, reloading with full ammo, unknown output) result in the player doing nothing for the round. Every player starts with 30 health-points, can you be the last one standing?

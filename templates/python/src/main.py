@@ -12,6 +12,7 @@ def main():
     print(np.random.randint(lower_bound, upper_bound))
 
     # cooperation_game_args = parse_cooperation_game_args()
+    # cooperation_game_args = parse_cooperation_game_args_v2()
     # standoff_game_args = parse_standoff_game_args()
 
 
@@ -21,8 +22,17 @@ def parse_cooperation_game_args() -> CooperationGameArgs:
     if len(sys.argv) != 3:
         raise Exception(f"Expected 2 arguments, got {len(sys.argv) - 1}")
     return CooperationGameArgs(
-        [Move.from_str(m) for m in sys.argv[1].split("/")],
-        [Move.from_str(m) for m in sys.argv[2].split("/")],
+        Move.list_from_raw(sys.argv[1], False),
+        Move.list_from_raw(sys.argv[2], False)
+    )
+
+
+def parse_cooperation_game_args_v2() -> CooperationGameArgs:
+    if len(sys.argv) != 3:
+        raise Exception(f"Expected 2 arguments, got {len(sys.argv) - 1}")
+    return CooperationGameArgs(
+        Move.list_from_raw(sys.argv[1], True),
+        Move.list_from_raw(sys.argv[2], True)
     )
 
 

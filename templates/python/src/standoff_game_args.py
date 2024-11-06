@@ -1,3 +1,4 @@
+from __future__ import annotations
 from dataclasses import dataclass
 from enum import StrEnum
 
@@ -9,7 +10,7 @@ class Action(StrEnum):
     NOTHING = "N"
 
     @staticmethod
-    def from_str(s: str):
+    def from_str(s: str) -> Action:
         if s == "S":
             return Action.SHOOT
         elif s == "P":
@@ -29,7 +30,7 @@ class PlayerState:
     last_action: Action
 
     @staticmethod
-    def from_str(raw: str):
+    def from_str(raw: str) -> PlayerState:
         attr = raw.split("/")
         if len(attr) != 3:
             raise Exception(f"Expected 3 arguments, got {len(attr)}")

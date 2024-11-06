@@ -13,6 +13,7 @@ const upperBound = parseInt(args[1], 10);
 console.log(Math.floor(Math.random() * (upperBound - lowerBound) + lowerBound));
 
 // const cooperationGameArgs = parseCooperationGameArgs();
+// const cooperationGameArgs = parseCooperationGameArgsV2();
 // const standoffGameArgs = parseStandoffGameArgs();
 
 function parseCooperationGameArgs() {
@@ -28,6 +29,16 @@ function parseCooperationGameArgs() {
     return {
         myMoves: args[0].split("/"),
         opponentMoves: args[1].split("/"),
+    }
+}
+
+function parseCooperationGameArgsV2() {
+    if (args.length != 2) {
+        throw Error(`Expected 2 arguments, got ${args.length}`)
+    }
+    return {
+        myMoves: args[0].substring(1, args[0].length - 1).split(","),
+        opponentMoves: args[1].substring(1, args[1].length - 1).split(","),
     }
 }
 
