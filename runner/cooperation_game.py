@@ -7,18 +7,18 @@ from docker.errors import ContainerError
 from competitor import Competitor
 
 
-def play_cooperation_game_v1(c1: Competitor, c2: Competitor) -> Tuple[int, int]:
-    return _play_cooperation_game(c1, c2, 10, False)
+def play_cooperation_game_legacy(c1: Competitor, c2: Competitor) -> Tuple[int, int]:
+    return _play_cooperation_game(c1, c2, 10, True)
 
 
-def play_cooperation_game_v2(
+def play_cooperation_game(
     c1: Competitor, c2: Competitor, nb_rounds: int
 ) -> Tuple[int, int]:
-    return _play_cooperation_game(c1, c2, nb_rounds, True)
+    return _play_cooperation_game(c1, c2, nb_rounds)
 
 
 def _play_cooperation_game(
-    c1: Competitor, c2: Competitor, nb_rounds: int, syntax_v2: bool
+    c1: Competitor, c2: Competitor, nb_rounds: int, syntax_legacy: bool = False
 ) -> Tuple[int, int]:
     """
     Play a 1v1 game of the cooperation game as defined in the README
@@ -26,7 +26,7 @@ def _play_cooperation_game(
     :param c1: first player
     :param c2: second player
     :param nb_rounds: number of rounds to play per game
-    :param syntax_v2: if True, use v2 syntax for container inputs (see README)
+    :param syntax_legacy: if True, use legacy syntax for container inputs (see README)
     :return tuple of the scores: first player, second player
     """
     score_1 = 0
@@ -39,7 +39,7 @@ def _play_cooperation_game(
         try:
             decision_1 = _decode_output(
                 client.containers.run(
-                    c1.container_image, _encode_input(moves_1, moves_2, syntax_v2)
+                    c1.container_image, _encode_input(moves_1, moves_2, syntax_legacy)
                 )
             )
         except ContainerError as e:
@@ -49,7 +49,7 @@ def _play_cooperation_game(
         try:
             decision_2 = _decode_output(
                 client.containers.run(
-                    c2.container_image, _encode_input(moves_2, moves_1, syntax_v2)
+                    c2.container_image, _encode_input(moves_2, moves_1, syntax_legacy)
                 )
             )
         except ContainerError as e:
@@ -101,14 +101,14 @@ class _Config:
 
 
 def _encode_input(
-    my_moves: List[str], opponent_moves: List[str], syntax_v2: bool
+    my_moves: List[str], opponent_moves: List[str], syntax_legacy: bool
 ) -> str:
-    if syntax_v2:
-        return f"[{','.join(my_moves)}] [{','.join(opponent_moves)}]"
+    if syntax_legacy:
+        if len(my_moves) == 0 or len(opponent_moves) == 0:
+            return ""
+        return f"{'/'.join(my_moves)} {'/'.join(opponent_moves)}"
 
-    if len(my_moves) == 0 or len(opponent_moves) == 0:
-        return ""
-    return f"{'/'.join(my_moves)} {'/'.join(opponent_moves)}"
+    return f"[{','.join(my_moves)}] [{','.join(opponent_moves)}]"
 
 
 def _decode_output(raw_output: bytes) -> str:

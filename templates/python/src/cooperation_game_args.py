@@ -18,14 +18,14 @@ class Move(StrEnum):
             raise Exception(f"Unknown move: {s}")
 
     @staticmethod
-    def list_from_raw(s: str, v2: bool) -> List[Move]:
-        if v2:
-            return [
-                Move.from_str(m)
-                for m in s.lstrip("[").rstrip("]").split(",")
-                if len(m) == 1
-            ]
-        return [Move.from_str(m) for m in s.split("/")]
+    def list_from_raw(s: str, legacy: bool = False) -> List[Move]:
+        if legacy:
+            return [Move.from_str(m) for m in s.split("/")]
+        return [
+            Move.from_str(m)
+            for m in s.lstrip("[").rstrip("]").split(",")
+            if len(m) == 1
+        ]
 
 
 @dataclass(frozen=True)

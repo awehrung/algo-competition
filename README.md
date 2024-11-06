@@ -8,7 +8,7 @@ Along a runner script, the repo also provides templates to create compatible doc
 
 ## How to compete
 
-As the competition runner, gather docker images from the competitors and adapt the `runner/compete.py` script to run the correct game with the list of competitors.
+As the competition runner, gather docker images from the competitors and adapt the `runner/compete.py` script to run the correct game with the list of competitors. Be aware that the docker images need to be compatible with your CPU architecture (submissions built on an ARM-based Mac will not work on x86-based PCs).
 
 As a competitor, build a docker image that matches the game specifications using the templates as starting points and publish it to a registry the competition runner has access to. Notify them about your entry, so that it can be added to the competition.
 
@@ -16,25 +16,25 @@ As a competitor, build a docker image that matches the game specifications using
 
 Consider two opposing mafia criminals facing a high-stakes deal. They can cooperate to make lots of money... but this is not the only option. If one of them betrays the other during the operation, the payoff is even bigger for the betrayer, while the betrayed gets nothing. If they both decide to betray each other at the same time though, the deal fails, and they only get very little. In addition, this is not a one-time deal: this situation will arise many times during their mafia life, and both criminals will remember their previous decisions, as well as their counterpart's. What is the optimal strategy to make the most out of all deals?
 
-This game is played between two players over 10 rounds. Each round, given the history of previous decisions, both players need to make a choice, between cooperation (C) and betrayal (B). The scoring is as follows:
+This game is played between two players over 10 to 15 rounds (unknown to the players, but the same for each pairing). Each round, given the history of previous decisions, both players need to make a choice, between cooperation (C) and betrayal (B). The scoring is as follows:
 * if both players betray: each get 1 point
 * if one player betrays while the other cooperates: the betrayer gets 3 points, the other 0
 * if both players cooperate: each get 2 points
 
 Specification for competitors:
-* Input: 2 lists of the previous decisions in the following format: `C/B/C/C`, the first representing your previous moves, the second representing your opponent's previous moves
-* The input will be transmitted through `docker run` arguments, e.g. `docker run my-competitor:v1 B/C/C C/B/C`
+* Input: 2 lists of the previous decisions in the following format: `[C,B,C,C]`, the first representing your previous moves, the second representing your opponent's previous moves
+* The input will be transmitted through `docker run` arguments, e.g. `docker run my-competitor:v1 "[B,C,C]" "[C,B,C]"`
 * Output: 1 character representing the decision, either `C` for cooperation or `B` for betrayal
 * The output will be read from the console, the container should not print anything else
 * Any invalid output will result in forfeiting the game
 
 The competition will pair every competitor in a round-robin tournament, adding the scores obtained each game. Greatest cumulated score wins the tournament.
 
-## Game 1 v2: Updated cooperation game
+## Game 1 legacy: First version of cooperation game
 
-The rules are the same as in game 1, with the following exceptions:
-* It is not known to the competitors beforehand how many rounds will be played exactly, only the range: 10 to 15 rounds. The number of rounds is determined randomly at the beginning of the game and is the same for all matches.
-* The input format is slightly different: `[C,B,C,C]` for each player, complete command looks like following: `docker run my-competitor:v1 "[B,C,C]" "[C,B,C]"`.
+The rules are the same as in the current game 1, with the following exceptions:
+* In the legacy version, exactly 10 rounds are played. The updated version prevents using this information for last-minute betrayals.
+* The input format is slightly different: `C/B/C/C` for each player, complete command looks like following: `docker run my-competitor:v1 B/C/C C/B/C`. The new version removes the ambiguity for the very first round of the game.
 
 ## Game 2: Mega mexican standoff
 
@@ -53,7 +53,7 @@ The competition will shuffle the competitors to build a starting circle and runs
 
 ## Notes
 
-The inspiration for this repo comes from [Robert Axelrod's tournaments](https://www.wikiwand.com/en/articles/The_Evolution_of_Cooperation#Background:_Axelrod's_tournaments) (warning: big spoilers for game 1) from the 80s.
+The inspiration for this repo comes from [Robert Axelrod's tournaments](https://www.wikiwand.com/en/articles/The_Evolution_of_Cooperation#Background:_Axelrod's_tournaments) from the 80s mentioned in [this Veritasium Youtube video](https://www.youtube.com/watch?v=mScpHTIi-kM) (warning: big spoilers for game 1).
 
 Game 2 is based on the author's memory of a childhood game.
 

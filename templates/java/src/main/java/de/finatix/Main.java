@@ -17,12 +17,12 @@ public class Main {
         int upperBound = Integer.parseInt(args[1]);
         System.out.println(rd.nextInt(lowerBound, upperBound));
 
+//        CooperationGameArgs cooperationGameArgs = parseCooperationGameArgsLegacy(args);
 //        CooperationGameArgs cooperationGameArgs = parseCooperationGameArgs(args);
-//        CooperationGameArgs cooperationGameArgs = parseCooperationGameArgsV2(args);
 //        StandoffGameArgs standoffGameArgs = parseStandoffGameArgs(args);
     }
 
-    private static CooperationGameArgs parseCooperationGameArgs(String[] rawArgs) {
+    private static CooperationGameArgs parseCooperationGameArgsLegacy(String[] rawArgs) {
         if (rawArgs.length == 0) {
             return new CooperationGameArgs(List.of(), List.of());
         }
@@ -30,18 +30,18 @@ public class Main {
             throw new IllegalArgumentException("Expected 2 arguments, got %d".formatted(rawArgs.length));
         }
         return new CooperationGameArgs(
-                CooperationGameArgs.Move.listFromRaw(rawArgs[0], false),
-                CooperationGameArgs.Move.listFromRaw(rawArgs[1], false)
+                CooperationGameArgs.Move.listFromRaw(rawArgs[0], true),
+                CooperationGameArgs.Move.listFromRaw(rawArgs[1], true)
         );
     }
 
-    private static CooperationGameArgs parseCooperationGameArgsV2(String[] rawArgs) {
+    private static CooperationGameArgs parseCooperationGameArgs(String[] rawArgs) {
         if (rawArgs.length != 2) {
             throw new IllegalArgumentException("Expected 2 arguments, got %d".formatted(rawArgs.length));
         }
         return new CooperationGameArgs(
-                CooperationGameArgs.Move.listFromRaw(rawArgs[0], true),
-                CooperationGameArgs.Move.listFromRaw(rawArgs[1], true)
+                CooperationGameArgs.Move.listFromRaw(rawArgs[0]),
+                CooperationGameArgs.Move.listFromRaw(rawArgs[1])
         );
     }
 
