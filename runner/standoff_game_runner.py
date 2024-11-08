@@ -10,22 +10,16 @@ from docker.errors import ContainerError
 from competitor import Competitor
 
 
-def play_standoff(competitors: List[str | Competitor]) -> None:
+def play_standoff(competitors: List[Competitor]) -> None:
     """
     Play the mega mexican standoff game as defined in the README, and print the
     results at the end
 
-    :param competitors: Full list of competitors, each entry should be an instance of the Competitor
-        dataclass, with friendly name and image path, e.g. Competitor("John", "registry.gitlab.com/my-competitor:v1").
-        Optionally use simple strings instead, e.g. "my-competitor:v1".
+    :param competitors: Full list of competitors, each entry should be an instance of the
+        Competitor dataclass
     """
     if len(competitors) < 3:
         raise Exception("At least 3 competitors needed for standoff game")
-    for i in range(len(competitors)):
-        c = competitors[i]
-        if isinstance(c, str):
-            competitors[i] = Competitor(c.split("/")[-1], c)
-    competitors: List[Competitor]
 
     game_state = _init_state(competitors)
     dead_players = defaultdict(list)
@@ -41,7 +35,7 @@ def play_standoff(competitors: List[str | Competitor]) -> None:
                 ]
             )
         )
-        # add a breakpoint here for added suspense
+        # add a breakpoint here for increased suspense
         decisions = _compute_decisions(game_state)
         print(f"Round {round_nb} decisions:")
         print(

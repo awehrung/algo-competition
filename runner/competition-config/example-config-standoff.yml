@@ -1,0 +1,12 @@
+game: standoff
+competitors:
+  - name: John
+    image: js-brawl-test:random-1
+  - name: Jack
+    image: js-brawl-test:random-2
+  - name: Joe
+    image: js-brawl-test:random-3
+  - name: Jill
+    image: js-brawl-test:random-4
+  - name: Jules
+    image: js-brawl-test:random-5

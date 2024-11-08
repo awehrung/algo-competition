@@ -1,0 +1,9 @@
+game: random
+competitors:
+  - name: my-java-competitor-1
+    image: my-java-competitor:0.0.1
+  - name: my-java-competitor-2
+    image: my-java-competitor:0.0.2
+  - my-python-competitor:0.0.1
+  - name: my-javascript-competitor-1
+    image: my-javascript-competitor:0.0.1

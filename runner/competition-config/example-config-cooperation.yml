@@ -1,0 +1,8 @@
+game: cooperation
+competitors:
+  - name: Tester Guy
+    image: js-test-competitor:cooperator
+  - name: SurelyNotBetrayer
+    image: js-test-competitor:betrayer
+  - js-test-competitor:random
+  - js-test-competitor:randomprinter

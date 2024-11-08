@@ -8,13 +8,21 @@ Along a runner script, the repo also provides templates to create compatible doc
 
 ## How to compete
 
-As the competition runner, gather docker images from the competitors and adapt the `runner/compete.py` script to run the correct game with the list of competitors. Be aware that the docker images need to be compatible with your CPU architecture (submissions built on an ARM-based Mac will not work on x86-based PCs).
+**As a competitor**, build a docker image that matches the game specifications using the templates as starting points and publish it to a registry the competition runner has access to. Notify them about your entry, so that it can be added to the competition.
 
-As a competitor, build a docker image that matches the game specifications using the templates as starting points and publish it to a registry the competition runner has access to. Notify them about your entry, so that it can be added to the competition.
+**As the competition runner**, gather docker images from the competitors and create a config file for the game (see examples under `runner/competition-config`). Make sure you have all dependencies installed, then run the `runner/compete.py` script with the path to your config file as the program argument to run the game.
+
+```shell
+cd runner
+pip install -r requirements.txt
+python compete.py competition-config/example-config-cooperation.yml
+```
+
+Be aware that the docker images need to be compatible with your CPU architecture (submissions built on an ARM-based Mac will not work on x86-based PCs).
 
 ## Game 1: Cooperation game (iterated prisoner's dilemma)
 
-Consider two opposing mafia criminals facing a high-stakes deal. They can cooperate to make lots of money... but this is not the only option. If one of them betrays the other during the operation, the payoff is even bigger for the betrayer, while the betrayed gets nothing. If they both decide to betray each other at the same time though, the deal fails, and they only get very little. In addition, this is not a one-time deal: this situation will arise many times during their mafia life, and both criminals will remember their previous decisions, as well as their counterpart's. What is the optimal strategy to make the most out of all deals?
+_Consider two opposing mafia criminals facing a high-stakes deal. They can cooperate to make lots of money... but this is not the only option. If one of them betrays the other during the operation, the payoff is even bigger for the betrayer, while the betrayed gets nothing. If they both decide to betray each other at the same time though, the deal fails, and they only get very little. In addition, this is not a one-time deal: this situation will arise many times during their mafia life, and both criminals will remember their previous decisions, as well as their counterpart's. What is the optimal strategy to make the most out of all deals?_
 
 This game is played between two players over 10 to 15 rounds (unknown to the players, but the same for each pairing). Each round, given the history of previous decisions, both players need to make a choice, between cooperation (C) and betrayal (B). The scoring is as follows:
 * if both players betray: each get 1 point
@@ -38,7 +46,7 @@ The rules are the same as in the current game 1, with the following exceptions:
 
 ## Game 2: Mega mexican standoff
 
-After months of betraying one another (see game 1), it finally happened: a gigantic mexican standoff involving all the players, standing in a circle. Each round, you have 3 options at your disposal: Shooting at your neighbors, protecting yourself, or reloading. If you shoot, pistols in both hands fire at the same time, hitting both people standing next to you in the circle (or the one person in front of you if only two people are left). This consumes 1 ammo and inflicts 10 damage, reduced to 4 damage if the target chose to protect themselves. If you reload, you gain 1 ammo back up to your starting maximum of 2. Invalid actions (e.g. shooting with no ammo, reloading with full ammo, unknown output) result in the player doing nothing for the round. Every player starts with 30 health-points, can you be the last one standing?
+_After months of betraying one another (see game 1), it finally happened: a gigantic mexican standoff involving all the players, standing in a circle. Each round, you have 3 options at your disposal: Shooting at your neighbors, protecting yourself, or reloading. If you shoot, pistols in both hands fire at the same time, hitting both people standing next to you in the circle (or the one person in front of you if only two people are left). This consumes 1 ammo and inflicts 10 damage, reduced to 4 damage if the target chose to protect themselves. If you reload, you gain 1 ammo back up to your starting maximum of 2. Invalid actions (e.g. shooting with no ammo, reloading with full ammo, unknown output) result in the player doing nothing for the round. Every player starts with 30 health-points, can you be the last one standing?_
 
 Specification for competitors:
 * Input: up to 3 triplets of HP, ammo and last action in the following format: `30/2/P`, the first being yourself and the others representing your neighbors
