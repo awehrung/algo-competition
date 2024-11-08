@@ -1,25 +1,21 @@
 package de.finatix;
 
 import java.util.List;
-import java.util.Random;
 
 /**
- * Example program: reads CLI arguments, converts them to integers,
- * then outputs a random integer between both input values.
+ * Example program: ignores arguments and always outputs "X"
  * <p>
- * Also provides methods to parse arguments of the games defined in
- * the README.
+ * Modify this to the best possible strategy, then upload the
+ * docker image with the <code>build.sh</code> script.
  */
 public class Main {
     public static void main(String[] args) {
-        Random rd = new Random();
-        int lowerBound = Integer.parseInt(args[0]);
-        int upperBound = Integer.parseInt(args[1]);
-        System.out.println(rd.nextInt(lowerBound, upperBound));
+        // use one of these at your discretion depending on the game
+        // CooperationGameArgs cooperationLegacyGameArgs = parseCooperationGameArgsLegacy(args);
+        // CooperationGameArgs cooperationGameArgs = parseCooperationGameArgs(args);
+        // StandoffGameArgs standoffGameArgs = parseStandoffGameArgs(args);
 
-//        CooperationGameArgs cooperationGameArgs = parseCooperationGameArgsLegacy(args);
-//        CooperationGameArgs cooperationGameArgs = parseCooperationGameArgs(args);
-//        StandoffGameArgs standoffGameArgs = parseStandoffGameArgs(args);
+        System.out.println("X");
     }
 
     private static CooperationGameArgs parseCooperationGameArgsLegacy(String[] rawArgs) {

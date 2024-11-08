@@ -1,19 +1,23 @@
 import sys
 
-import numpy as np
-
 from cooperation_game_args import CooperationGameArgs, Move
 from standoff_game_args import StandoffGameArgs, PlayerState
 
 
 def main():
-    lower_bound = int(sys.argv[1])
-    upper_bound = int(sys.argv[2])
-    print(np.random.randint(lower_bound, upper_bound))
+    """
+    Example program: ignores arguments and always outputs "X"
 
+    Modify this to the best possible strategy, then upload the
+    docker image with the `build.sh` script.
+    """
+
+    # use one of these at your discretion depending on the game
     # cooperation_game_args = parse_cooperation_game_args_legacy()
     # cooperation_game_args = parse_cooperation_game_args()
     # standoff_game_args = parse_standoff_game_args()
+
+    print("X")
 
 
 def parse_cooperation_game_args_legacy() -> CooperationGameArgs:
@@ -22,8 +26,7 @@ def parse_cooperation_game_args_legacy() -> CooperationGameArgs:
     if len(sys.argv) != 3:
         raise Exception(f"Expected 2 arguments, got {len(sys.argv) - 1}")
     return CooperationGameArgs(
-        Move.list_from_raw(sys.argv[1], True),
-        Move.list_from_raw(sys.argv[2], True)
+        Move.list_from_raw(sys.argv[1], True), Move.list_from_raw(sys.argv[2], True)
     )
 
 
@@ -31,8 +34,7 @@ def parse_cooperation_game_args() -> CooperationGameArgs:
     if len(sys.argv) != 3:
         raise Exception(f"Expected 2 arguments, got {len(sys.argv) - 1}")
     return CooperationGameArgs(
-        Move.list_from_raw(sys.argv[1]),
-        Move.list_from_raw(sys.argv[2])
+        Move.list_from_raw(sys.argv[1]), Move.list_from_raw(sys.argv[2])
     )
 
 
@@ -47,11 +49,4 @@ def parse_standoff_game_args() -> StandoffGameArgs:
 
 
 if __name__ == "__main__":
-    """
-    Example program: reads CLI arguments, converts them to integers,
-    then outputs a random integer between both input values.
-    
-    Also provides methods to parse arguments of the games defined in
-    the README.
-    """
     main()

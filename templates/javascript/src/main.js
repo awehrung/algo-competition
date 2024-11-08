@@ -1,22 +1,21 @@
 const args = process.argv.slice(2)
 
 /**
- * Example program: reads CLI arguments, converts them to integers,
- * then outputs a random integer between both input values.
+ * Example program: ignores arguments and always outputs "X"
  *
- * Also provides methods to parse arguments of the games defined in
- * the README.
+ * Modify this to the best possible strategy, then upload the
+ * docker image with the `build.sh` script.
  */
 
-const lowerBound = parseInt(args[0], 10);
-const upperBound = parseInt(args[1], 10);
-console.log(Math.floor(Math.random() * (upperBound - lowerBound) + lowerBound));
 
-// const cooperationGameArgs = parseCooperationGameArgsLegagy();
+// use one of these at your discretion depending on the game
+// const cooperationLegacyGameArgs = parseCooperationGameArgsLegacy();
 // const cooperationGameArgs = parseCooperationGameArgs();
 // const standoffGameArgs = parseStandoffGameArgs();
 
-function parseCooperationGameArgsLegagy() {
+console.log("X");
+
+function parseCooperationGameArgsLegacy() {
     if (args.length == 0) {
         return {
             myMoves: [],
