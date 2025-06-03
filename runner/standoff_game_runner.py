@@ -77,7 +77,7 @@ class _Config:
     max_ammo_capacity = 2
     ammo_loss_on_shoot = 1
     ammo_gain_on_reload = 1
-    protect_damage_multiplier = 0.6
+    protect_damage_multiplier = 0.4
     hp_lost_per_hit = 10
 
 
