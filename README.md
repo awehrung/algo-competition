@@ -8,7 +8,7 @@ Along a runner script, the repo also provides templates to create compatible doc
 
 ## How to compete
 
-**As a competitor**, build a docker image that matches the game specifications using the templates as starting points and publish it to a registry the competition runner has access to. Notify them about your entry, so that it can be added to the competition. Check the `templates` directory for starting points in Java, Javascript and Python.
+**As a competitor**, build a docker image that matches the game specifications using the templates as starting points and publish it to a registry the competition runner has access to. Notify them about your entry, so that it can be added to the competition. Check the `templates` directory for starting points in Java, Javascript and Python: each provide the argument parsing for the games as well as a `test.sh` script to try out your algorithm and a `build.sh` script that builds and pushes the docker image.
 
 **As the competition runner**, gather docker images from the competitors and create a config file for the game (see examples under `runner/competition-config`). Make sure you have all dependencies installed, then run the `runner/compete.py` script with the path to your config file as the program argument to run the game.
 
