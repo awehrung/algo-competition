@@ -4,11 +4,11 @@
 
 This repo implements a system to make algorithms compete in any text-input/text-output game, independent of implementation language. The competing algorithms need to be docker images that take some text as input and produce some text as output, the concrete form of which depends on the game being played.
 
-Along a runner script, the repo also provides templates to create compatible docker images from Javascript, Python, and Java code. The `src` directory contains sample code that should be edited to match the game specifications. In order to allow getting into the challenge more easily, functions to parse the input for both game defined below have been provided with the templates. To build the docker image from a template, simply run the `build.sh` script from the corresponding directory.
+Along a runner script, the repo also provides templates to create compatible docker images from Javascript, Python, and Java code. The `src` directory contains sample code that should be edited to match the game specifications. In order to allow getting into the challenge more easily, functions to parse the input for both games defined below have been provided with the templates. To test the algorithm, use the `test.sh` script from the corresponding directory. To build the docker image from a template and push it to a registry, simply run the `build.sh` script from the same directory.
 
 ## How to compete
 
-**As a competitor**, build a docker image that matches the game specifications using the templates as starting points and publish it to a registry the competition runner has access to. Notify them about your entry, so that it can be added to the competition. Check the `templates` directory for starting points in Java, Javascript and Python: each provide the argument parsing for the games as well as a `test.sh` script to try out your algorithm and a `build.sh` script that builds and pushes the docker image.
+**As a competitor**, build a docker image that matches the game specifications using the templates as starting points and publish it to a registry the competition runner has access to. Notify them about your entry, so that it can be added to the competition. Check the `templates` directory for starting points in Java, Javascript and Python.
 
 **As the competition runner**, gather docker images from the competitors and create a config file for the game (see examples under `runner/competition-config`). Make sure you have all dependencies installed, then run the `runner/compete.py` script with the path to your config file as the program argument to run the game.
 
