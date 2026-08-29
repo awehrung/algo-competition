@@ -1,7 +1,9 @@
 import sys
+from random import randint
 
 from cooperation_game_args import CooperationGameArgs, Move
 from standoff_game_args import StandoffGameArgs, PlayerState
+from trading_game_args import TradingGameArgs
 
 
 def main():
@@ -16,6 +18,7 @@ def main():
     # cooperation_game_args = parse_cooperation_game_args_legacy()
     # cooperation_game_args = parse_cooperation_game_args()
     # standoff_game_args = parse_standoff_game_args()
+    # trading_game_args = parse_trading_game_args()
 
     print("X")
 
@@ -37,6 +40,18 @@ def parse_cooperation_game_args() -> CooperationGameArgs:
         Move.list_from_raw(sys.argv[1]), Move.list_from_raw(sys.argv[2])
     )
 
+
+def parse_trading_game_args() -> TradingGameArgs:
+    if len(sys.argv) < 6:
+        raise Exception(f"Expected at least 5 arguments, got {len(sys.argv) - 1}")
+    return TradingGameArgs(
+        int(sys.argv[1].split("=")[1]),
+        int(sys.argv[2].split("=")[1]),
+        int(sys.argv[3].split("=")[1]),
+        int(sys.argv[4].split("=")[1]),
+        int(sys.argv[5].split("=")[1]),
+        [(int(h.split("/")[0]), int(h.split("/")[1])) for h in sys.argv[6:]]
+    )
 
 def parse_standoff_game_args() -> StandoffGameArgs:
     if len(sys.argv) > 4 or len(sys.argv) < 3:

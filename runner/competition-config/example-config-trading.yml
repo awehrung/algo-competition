@@ -1,0 +1,8 @@
+game: trading
+competitors:
+  - name: IBuyEverything
+    image: js-test-competitor:buyer
+  - name: Company7
+    image: js-test-competitor:test
+  - js-test-competitor:random
+  - js-test-competitor:randomprinter

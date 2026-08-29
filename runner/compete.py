@@ -14,6 +14,7 @@ from cooperation_game import play_cooperation_game_legacy, play_cooperation_game
 from random_game import play_random_game
 from round_robin_game_runner import run_1v1_round_robin
 from standoff_game_runner import play_standoff
+from trading_game import play_trading_game
 
 
 @dataclass(frozen=True)
@@ -51,6 +52,8 @@ def run(config: _Config) -> None:
         )
     elif config.game_name == "random":
         run_1v1_round_robin(config.competitors, play_random_game)
+    elif config.game_name == "trading":
+        run_1v1_round_robin(config.competitors, play_trading_game)
     elif config.game_name == "standoff":
         rd.shuffle(config.competitors)
         play_standoff(config.competitors)
