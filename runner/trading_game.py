@@ -8,6 +8,7 @@ from competitor import Competitor
 
 # R=10 MM=50 MQ=0 OM=50 OQ=0
 # R=4 MM=23 MQ=2 OM=15 OQ=4 10/5 15/16 3/14
+# TODO: add breakpoints
 def play_trading_game(c1: Competitor, c2: Competitor) -> Tuple[int, int]:
     game_state = _GameState(c1.name, c2.name, 10, 50)
 

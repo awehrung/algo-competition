@@ -59,9 +59,15 @@ Specification for competitors:
 
 The competition will shuffle the competitors to build a starting circle and runs until at most 1 player is left alive.
 
+## Game 3: Trading game
+
+_You survived the escalation and are ready to embrace a quieter life. Let's start buying stuff!_
+
+TODO rules, input and output format
+
 ## Notes
 
-The inspiration for this repo comes from [Robert Axelrod's tournaments](https://www.wikiwand.com/en/articles/The_Evolution_of_Cooperation#Background:_Axelrod's_tournaments) from the 80s mentioned in [this Veritasium Youtube video](https://www.youtube.com/watch?v=mScpHTIi-kM) (warning: big spoilers for game 1).
+The inspiration for this repo comes from [Robert Axelrod's tournaments](https://www.wikiwand.com/en/articles/The_Evolution_of_Cooperation#Background:_Axelrod's_tournaments) from the 80s mentioned in [this Veritasium YouTube video](https://www.youtube.com/watch?v=mScpHTIi-kM) (warning: big spoilers for game 1).
 
 Game 2 is based on the author's memory of a childhood game.
 
