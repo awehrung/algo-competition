@@ -9,8 +9,8 @@ from competitor import Competitor
 # R=10 MM=50 MQ=0 OM=50 OQ=0
 # R=4 MM=23 MQ=2 OM=15 OQ=4 10/5 15/16 3/14
 # TODO: add breakpoints
-def play_trading_game(c1: Competitor, c2: Competitor) -> Tuple[int, int]:
-    game_state = _GameState(c1.name, c2.name, 10, 50)
+def play_trading_game(c1: Competitor, c2: Competitor, money_gone_mode: bool) -> Tuple[int, int]:
+    game_state = _GameState(c1.name, c2.name, 10, 50, money_gone_mode)
 
     client = docker.from_env()
     while game_state.r > 0:
@@ -41,19 +41,17 @@ def play_trading_game(c1: Competitor, c2: Competitor) -> Tuple[int, int]:
         print(round_result)
 
     game_result, score_1, score_2 = game_state.determine_winner()
-    print(game_result)
+    print(f"\n--> {game_result}")
     return score_1, score_2
 
 
 @dataclass(frozen=True)
 class _Config:
-    full_victory_points = 10
     default_victory_points = 10
-    draw_points = 5
 
 
 class _GameState:
-    def __init__(self, p1_name: str, p2_name: str, item_count: int, initial_money: int):
+    def __init__(self, p1_name: str, p2_name: str, item_count: int, initial_money: int, money_gone_mode: bool):
         self.p1 = p1_name
         self.p2 = p2_name
         assert item_count % 2 == 0, "Need even item count"
@@ -63,6 +61,7 @@ class _GameState:
         self.m2 = initial_money
         self.q2 = 0
         self.history: List[Tuple[int, int]] = []
+        self.money_gone_mode = money_gone_mode
 
     def current_status(self):
         return f"""Items remaining to sell: {self.r}
@@ -93,29 +92,40 @@ class _GameState:
         return "Invalid bid by both players", 0, 0
 
     def apply_bids(self, bid_1: int, bid_2: int) -> str:
-        # TODO later: add variant where bid loser keeps their money
         self.r -= 2
-        self.m1 -= bid_1
-        self.m2 -= bid_2
         self.history.append((bid_1, bid_2))
 
         if bid_1 > bid_2:
             self.q1 += 2
+            self.m1 -= bid_1
+            if self.money_gone_mode:
+                self.m2 -= bid_2
             return f"{self.p1} wins 2 items with a bid of {bid_1} over {bid_2}"
         elif bid_1 < bid_2:
             self.q2 += 2
+            self.m2 -= bid_2
+            if self.money_gone_mode:
+                self.m1 -= bid_1
             return f"{self.p2} wins 2 items with a bid of {bid_2} over {bid_1}"
         else:
             self.q1 += 1
             self.q2 += 1
-            return f"Draw at {bid_1}: each player gets 1 item"
+            if self.money_gone_mode:
+                self.m1 -= bid_1
+                self.m2 -= bid_2
+                explanation_ext = " at full bid price"
+            else:
+                self.m1 -= (bid_1 + 1) // 2
+                self.m2 -= (bid_2 + 1) // 2
+                explanation_ext = f" at half bid price of {(bid_1 + 1) // 2}"
+            return f"Draw at {bid_1}: each player gets 1 item{explanation_ext}"
 
     def determine_winner(self) -> Tuple[str, int, int]:
         if self.q1 > self.q2:
-            return f"{self.p1} wins!", _Config.full_victory_points, 0
+            return f"{self.p1} wins {self.q1} to {self.q2}!", self.q1, self.q2
         if self.q1 < self.q2:
-            return f"{self.p2} wins!", 0, _Config.full_victory_points
-        return f"Draw!", _Config.draw_points, _Config.draw_points
+            return f"{self.p2} wins {self.q2} to {self.q1}!", self.q1, self.q2
+        return f"Draw at {self.q1}!", self.q1, self.q1
 
 
 def _decode_output(raw_output: bytes) -> str:

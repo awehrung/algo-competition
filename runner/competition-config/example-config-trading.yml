@@ -1,4 +1,6 @@
 game: trading
+# 2 modes: "money-gone" and "money-not-gone"
+mode: money-gone
 competitors:
   - name: IBuyEverything
     image: js-test-competitor:buyer

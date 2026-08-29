@@ -4,7 +4,7 @@ import random as rd
 import sys
 from dataclasses import dataclass
 from functools import partial
-from typing import List
+from typing import List, Optional
 
 import docker
 import yaml
@@ -20,6 +20,7 @@ from trading_game import play_trading_game
 @dataclass(frozen=True)
 class _Config:
     game_name: str
+    mode: Optional[str]
     competitors: List[Competitor]
 
     @staticmethod
@@ -29,7 +30,9 @@ class _Config:
         if not "game" in config or not "competitors" in config:
             raise ValueError("Invalid config file")
         return _Config(
-            config["game"], [Competitor.from_raw(c) for c in config["competitors"]]
+            config["game"],
+            config["mode"] if "mode" in config else None,
+            [Competitor.from_raw(c) for c in config["competitors"]]
         )
 
 
@@ -53,7 +56,10 @@ def run(config: _Config) -> None:
     elif config.game_name == "random":
         run_1v1_round_robin(config.competitors, play_random_game)
     elif config.game_name == "trading":
-        run_1v1_round_robin(config.competitors, play_trading_game)
+        run_1v1_round_robin(
+            config.competitors,
+            partial(play_trading_game, money_gone_mode=(config.mode == "money-gone"))
+        )
     elif config.game_name == "standoff":
         rd.shuffle(config.competitors)
         play_standoff(config.competitors)
