@@ -12,6 +12,7 @@ const args = process.argv.slice(2)
 // const cooperationLegacyGameArgs = parseCooperationGameArgsLegacy();
 // const cooperationGameArgs = parseCooperationGameArgs();
 // const standoffGameArgs = parseStandoffGameArgs();
+// const tradingGameArgs = parseTradingGameArgs();
 
 console.log("X");
 
@@ -62,5 +63,20 @@ function parseStandoffGameArgs() {
         me: parsePlayerState(args[0]),
         neighborLeft: parsePlayerState(args[1]),
         neighborRight: args.length == 3 ? parsePlayerState(args[2]) : null
+    }
+}
+
+function parseTradingGameArgs() {
+    if (args.length < 5) {
+        throw Error(`Expected at least 5 arguments, got ${args.length}`)
+    }
+
+    return {
+        remainingItems: args[0].split("=")[1],
+        myMoney: args[1].split("=")[1],
+        myQuantity: args[2].split("=")[1],
+        otherMoney: args[3].split("=")[1],
+        otherQuantity: args[4].split("=")[1],
+        bidsHistory: args.slice(5).map(e => [e.split("/")[0], e.split("/")[1]])
     }
 }

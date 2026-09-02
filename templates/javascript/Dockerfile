@@ -1,4 +1,4 @@
-FROM node:23
+FROM node:24
 
 COPY ./src /app/src
 WORKDIR /app/src
