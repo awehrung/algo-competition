@@ -16,9 +16,9 @@ func main() {
 	flag.Parse()
 
 	// use one of these at your discretion depending on the game
-	//rawArgs := flag.Args()
-	//args := parseCooperationGameArgs(rawArgs)
-	//args := parseStandoffGameArgs(rawArgs)
+	//args := parseCooperationGameArgs(flag.Args())
+	//args := parseStandoffGameArgs(flag.Args())
+	//args := parseTradingGameArgs(flag.Args())
 	//fmt.Println(*args)
 
 	fmt.Println("X")
@@ -95,4 +95,53 @@ func parsePlayerState(playerStateRaw string) *playerState {
 		ammo:       ammo,
 		lastAction: attributes[2],
 	}
+}
+
+func parseTradingGameArgs(args []string) *tradingGameArgs {
+	if len(args) < 5 {
+		panic(fmt.Sprintf("Expected at least 5 arguments, got %d", len(args)))
+	}
+
+	return &tradingGameArgs{
+		remainingItems: toIntUnsafe(strings.Split(args[0], "=")[1]),
+		myMoney:        toIntUnsafe(strings.Split(args[1], "=")[1]),
+		myQuantity:     toIntUnsafe(strings.Split(args[2], "=")[1]),
+		otherMoney:     toIntUnsafe(strings.Split(args[3], "=")[1]),
+		otherQuantity:  toIntUnsafe(strings.Split(args[4], "=")[1]),
+		bidsHistory:    parseBidsHistory(args[5:]),
+	}
+}
+
+func parseBidsHistory(history []string) []bid {
+	var bids []bid
+	for _, h := range history {
+		splitEntry := strings.Split(h, "/")
+		bids = append(bids, bid{
+			myBid:    toIntUnsafe(splitEntry[0]),
+			otherBid: toIntUnsafe(splitEntry[1]),
+		})
+	}
+	return bids
+}
+
+func toIntUnsafe(s string) int {
+	i, err := strconv.Atoi(s)
+	if err != nil {
+		panic(err)
+	}
+	return i
+}
+
+type tradingGameArgs struct {
+	remainingItems int
+	myMoney        int
+	myQuantity     int
+	otherMoney     int
+	otherQuantity  int
+	bidsHistory    []bid
+}
+
+type bid struct {
+	myBid    int
+	otherBid int
 }
