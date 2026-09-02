@@ -6,11 +6,12 @@ This repo implements a system to make algorithms compete in any text-input/text-
 implementation language. The competing algorithms need to be docker images that take some text as input and produce some
 text as output, the concrete form of which depends on the game being played.
 
-Along a runner script, the repo also provides templates to create compatible docker images from Javascript, Python, and
-Java code. The `src` directory contains sample code that should be edited to match the game specifications. In order to
-allow getting into the challenge more easily, functions to parse the input for both games defined below have been
-provided with the templates. To test the algorithm, use the `test.sh` script from the corresponding directory. To build
-the docker image from a template and push it to a registry, simply run the `build.sh` script from the same directory.
+Along a runner script, the repo also provides templates to create compatible docker images from Javascript, Python,
+Java, and Go code. The `src` directory contains sample code that should be edited to match the game specifications. In
+order to allow getting into the challenge more easily, functions to parse the input for both games defined below have
+been provided with the templates. To test the algorithm, use the `test.sh` script from the corresponding directory. To
+build the docker image from a template and push it to a registry, simply run the `build.sh` script from the same
+directory.
 
 ## How to compete
 
@@ -94,9 +95,37 @@ The competition will shuffle the competitors to build a starting circle and runs
 
 ## Game 3: Trading game
 
-_You survived the escalation and are ready to embrace a quieter life. Let's start buying stuff!_
+_You survived the escalation and are ready to embrace a quieter life. Let's start buying stuff! You stand at an auction
+with 10 items to be bought and 50 money at your disposal. Each round, 2 of the items will be sold. You have to bid
+against another competitor, highest bid wins the items. In case of a draw, you get one item each. But beware! In the
+`money-gone` mode, if you lose the bid, you do not get your money back. Your goal is to maximize your total of items
+owned at the end of the game._
 
-TODO rules, input and output format
+This game is played in a round-robin format: every competitor is matched to every other competitor in duels. Before each
+duel, the auction is reset to the initial conditions (10 items to buy, 50 money available). Each duel lasts 5 rounds (2
+items auctioned per round). Every round, each competitor receives the current state of the auction as input, and must
+output their bid for the round. There are 2 games modes possible (see config file): in `money-gone`, the money invested
+on a lost bid does not get refunded; in `money-not-gone`, lost bids get refunded to the competitor.
+
+Specification for competitors:
+
+* All numbers (money, item count) are integers
+* Input: the auction state consisting of the following attributes
+    * Count of remaining items to be sold --> `R`
+    * Your remaining funds aka "My money" --> `MM`
+    * The amount of items you bought aka "My quantity" --> `MQ`
+    * Your opponent's funds aka "Other money" --> `OM`
+    * The amount of items your opponent bought aka "Other quantity" --> `OQ`
+    * The bid history as a space-separated list of `myBid/otherBid`
+    * Complete example: `R=4 MM=23 MQ=2 OM=15 OQ=4 10/5 15/16 3/14`
+* The input will be transmitted through `docker run` arguments, e.g.
+  `docker run my-competitor:v1 R=10 MM=50 MQ=0 OM=50 OQ=0`
+* Output: your bid for the round as a number
+* The output will be read from the console, the container should not print anything else
+* Any invalid output (not a number, negative number, greater than available funds, ...) will result in a forfeit of the
+  current auction
+
+Your score in each round is the amount of items you managed to buy. Greatest cumulated score wins the tournament.
 
 ## Notes
 
