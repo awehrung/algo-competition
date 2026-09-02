@@ -1,4 +1,4 @@
-FROM openjdk:21
+FROM amazoncorretto:25
 WORKDIR /usr/src/app
 COPY target/my-java-competitor-jar-with-dependencies.jar .
 ENTRYPOINT ["java", "-jar", "my-java-competitor-jar-with-dependencies.jar"]
