@@ -1,7 +1,7 @@
 import docker
 from dataclasses import dataclass
 from docker.errors import ContainerError
-from typing import Tuple, List
+from typing import Tuple, List, Optional
 
 from competitor import Competitor
 
