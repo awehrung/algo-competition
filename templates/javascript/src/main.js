@@ -72,11 +72,14 @@ function parseTradingGameArgs() {
     }
 
     return {
-        remainingItems: args[0].split("=")[1],
-        myMoney: args[1].split("=")[1],
-        myQuantity: args[2].split("=")[1],
-        otherMoney: args[3].split("=")[1],
-        otherQuantity: args[4].split("=")[1],
-        bidsHistory: args.slice(5).map(e => [e.split("/")[0], e.split("/")[1]])
+        remainingItems: parseInt(args[0].split("=")[1], 10),
+        myMoney: parseInt(args[1].split("=")[1], 10),
+        myQuantity: parseInt(args[2].split("=")[1], 10),
+        otherMoney: parseInt(args[3].split("=")[1], 10),
+        otherQuantity: parseInt(args[4].split("=")[1], 10),
+        bidsHistory: args.slice(5).map(e => [
+            parseInt(e.split("/")[0], 10),
+            parseInt(e.split("/")[1], 10)
+        ])
     }
 }
