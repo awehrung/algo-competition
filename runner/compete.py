@@ -32,7 +32,7 @@ class _Config:
         return _Config(
             config["game"],
             config["mode"] if "mode" in config else None,
-            [Competitor.from_raw(c) for c in config["competitors"]]
+            [Competitor.from_raw(c) for c in config["competitors"]],
         )
 
 
@@ -58,7 +58,7 @@ def run(config: _Config) -> None:
     elif config.game_name == "trading":
         run_1v1_round_robin(
             config.competitors,
-            partial(play_trading_game, money_gone_mode=(config.mode == "money-gone"))
+            partial(play_trading_game, money_gone_mode=(config.mode == "money-gone")),
         )
     elif config.game_name == "standoff":
         rd.shuffle(config.competitors)

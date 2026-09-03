@@ -6,7 +6,9 @@ from typing import Tuple, List, Optional
 from competitor import Competitor
 
 
-def play_trading_game(c1: Competitor, c2: Competitor, money_gone_mode: bool) -> Tuple[int, int]:
+def play_trading_game(
+    c1: Competitor, c2: Competitor, money_gone_mode: bool
+) -> Tuple[int, int]:
     game_state = _GameState(c1.name, c2.name, 10, 50, money_gone_mode)
 
     client = docker.from_env()
@@ -15,14 +17,18 @@ def play_trading_game(c1: Competitor, c2: Competitor, money_gone_mode: bool) -> 
         # print(game_state.m1, game_state.m2)
         try:
             bid_1 = _decode_output(
-                client.containers.run(c1.container_image, game_state.encode_for_player_1())
+                client.containers.run(
+                    c1.container_image, game_state.encode_for_player_1()
+                )
             )
         except ContainerError as e:
             print(f"{c1.name} threw error, forfeiting the game -- {e}")
             return 0, _Config.default_victory_points
         try:
             bid_2 = _decode_output(
-                client.containers.run(c2.container_image, game_state.encode_for_player_2())
+                client.containers.run(
+                    c2.container_image, game_state.encode_for_player_2()
+                )
             )
         except ContainerError as e:
             print(f"{c2.name} threw error, forfeiting the game -- {e}")
@@ -48,7 +54,14 @@ class _Config:
 
 
 class _GameState:
-    def __init__(self, p1_name: str, p2_name: str, item_count: int, initial_money: int, money_gone_mode: bool):
+    def __init__(
+        self,
+        p1_name: str,
+        p2_name: str,
+        item_count: int,
+        initial_money: int,
+        money_gone_mode: bool,
+    ):
         self.p1 = p1_name
         self.p2 = p2_name
         assert item_count % 2 == 0, "Need even item count"
@@ -73,7 +86,9 @@ class _GameState:
         encoded_history = " ".join(f"{b2}/{b1}" for (b1, b2) in self.history)
         return f"R={self.r} MM={self.m2} MQ={self.q2} OM={self.m1} OQ={self.q1} {encoded_history}"
 
-    def check_bids_validity(self, bid_1: str, bid_2: str) -> Optional[Tuple[str, int, int]]:
+    def check_bids_validity(
+        self, bid_1: str, bid_2: str
+    ) -> Optional[Tuple[str, int, int]]:
         """
         On error, reason of invalidity and score to apply
         """
@@ -83,9 +98,17 @@ class _GameState:
         if bid_1_valid and bid_2_valid:
             return None
         if bid_2_valid and not bid_1_valid:
-            return f"Invalid bid of {bid_1} by {self.p1}: should be an integer between 0 and {self.m1}", 0, _Config.default_victory_points
+            return (
+                f"Invalid bid of {bid_1} by {self.p1}: should be an integer between 0 and {self.m1}",
+                0,
+                _Config.default_victory_points,
+            )
         if bid_1_valid and not bid_2_valid:
-            return f"Invalid bid of {bid_2} by {self.p2}: should be an integer between 0 and {self.m2}", _Config.default_victory_points, 0
+            return (
+                f"Invalid bid of {bid_2} by {self.p2}: should be an integer between 0 and {self.m2}",
+                _Config.default_victory_points,
+                0,
+            )
         return "Invalid bid by both players", 0, 0
 
     def apply_bids(self, bid_1: int, bid_2: int) -> str:

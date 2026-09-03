@@ -50,6 +50,7 @@ def parse_standoff_game_args() -> StandoffGameArgs:
         PlayerState.from_str(sys.argv[3]) if len(sys.argv) == 4 else None,
     )
 
+
 def parse_trading_game_args() -> TradingGameArgs:
     if len(sys.argv) < 6:
         raise Exception(f"Expected at least 5 arguments, got {len(sys.argv) - 1}")
@@ -59,7 +60,7 @@ def parse_trading_game_args() -> TradingGameArgs:
         int(sys.argv[3].split("=")[1]),
         int(sys.argv[4].split("=")[1]),
         int(sys.argv[5].split("=")[1]),
-        [(int(h.split("/")[0]), int(h.split("/")[1])) for h in sys.argv[6:]]
+        [(int(h.split("/")[0]), int(h.split("/")[1])) for h in sys.argv[6:]],
     )
 
 

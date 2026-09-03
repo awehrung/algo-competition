@@ -8,7 +8,7 @@ from competitor import Competitor
 def play_random_game(c1: Competitor, c2: Competitor) -> Tuple[int, int]:
     """
     Play a 1v1 test random game (testing only, will be deleted later)
-    
+
     :param c1: first player
     :param c2: second player
     :return tuple of the scores: first player, second player

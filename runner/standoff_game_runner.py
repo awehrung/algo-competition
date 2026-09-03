@@ -166,7 +166,7 @@ def _check_move_validity(move: str, hp: int, ammo: int) -> Optional[str]:
 
 
 def _compute_decisions(
-    game_state: dict[Competitor, _PlayerState]
+    game_state: dict[Competitor, _PlayerState],
 ) -> dict[Competitor, _Action]:
     client = docker.from_env()
     decisions = {}
